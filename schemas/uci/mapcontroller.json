@@ -1,0 +1,408 @@
+{
+    "mapcontroller": [{
+            "section": "controller",
+            "description": "Mapcontroller daemon Configuration",
+            "multi": false,
+            "required": "yes",
+            "options": [{
+                    "name": "enabled",
+                    "type": "boolean",
+                    "required": "no",
+                    "default": true,
+                    "description": "Enables mapcontroller daemon"
+                },
+                {
+                    "name": "debug",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Mapcontroller debug level"
+                },
+                {
+                    "name": "registrar",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "",
+                    "description": "The bands on which mapcontroller acts as registrar, space separated"
+                },
+                {
+                    "name": "resend_num",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Number of retry attempts for CMDUs which expect a response if none is received"
+                },
+                {
+                    "name": "channel_plan",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Interval in seconds at which channel planning calculations will take place. 0 means disabled and a value less than than 180 will default to 180"
+                },
+                {
+                    "name": "allow_bgdfs",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Interval in seconds at which background CAC will be triggered. 0 means disabled and a value less than than 120 will default to 120"
+                },
+                {
+                    "name": "enable_ts",
+                    "type": "boolean",
+                    "required": "no",
+                    "default": false,
+                    "description": "Enable traffic separation in the EasyMesh network."
+                }, {
+                    "name": "primary_vid",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Primary VID used for VLAN segregation. Today only 0 (vlan not supported) and 1 are supported."
+                },
+                {
+                    "name": "primary_pcp",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Default PCP used"
+                },
+                {
+                    "name": "bcn_metrics_max_num",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "10",
+                    "description": "Number of beacon metrics stored (per client)."
+                },
+                {
+                    "name": "initial_channel_scan",
+                    "type": "boolean",
+                    "required": "no",
+                    "default": false,
+                    "description": "Trigger a channel scan upon receiving initial radio scan capabilities."
+                }
+            ]
+        },
+        {
+            "section": "sta_steering",
+            "description": "STA Steer plugin configuration",
+            "multi": true,
+            "required": "no",
+            "options": [{
+                "name": "enabled",
+                "type": "boolean",
+                "required": "no",
+                "default": false,
+                "description": "Enable this STA steering section, only one may be active at any given time. If multiple are enabled, the first section will take affect."
+            }, {
+                "name": "enable_sta_steer",
+                "type": "boolean",
+                "required": "no",
+                "default": false,
+                "description": "Enable STA steering when this section is loaded."
+            }, {
+                "name": "enable_bsta_steer",
+                "type": "boolean",
+                "required": "no",
+                "default": false,
+                "description": "Enable bSTA steering when this section is loaded."
+            }, {
+                "name": "use_bcn_metrics",
+                "type": "boolean",
+                "required": "no",
+                "default": false,
+                "description": "Use beacon metric reports for steering decision."
+            }, {
+                "name": "use_usta_metrics",
+                "type": "boolean",
+                "required": "no",
+                "default": false,
+                "description": "Use un-associated STA metrics for steering decision."
+            }, {
+                "name": "bandsteer",
+                "type": "boolean",
+                "required": "no",
+                "default": false,
+                "description": "Allow steering between different bands."
+            }, {
+                "name": "diffsnr",
+                "type": "integer",
+                "required": "no",
+                "default": "8",
+                "description": "RCPI improvement towards new AP required in order to trigger steering decision."
+            }]
+        },
+        {
+            "section": "ap",
+            "description": "Wireless credentials to be configured",
+            "multi": true,
+            "required": "no",
+            "options": [{
+                    "name": "band",
+                    "type": "integer",
+                    "required": "yes",
+                    "default": "",
+                    "description": "Band for which the credentials applies"
+                },
+                {
+                    "name": "ssid",
+                    "type": "string",
+                    "required": "no",
+                    "default": "",
+                    "description": "SSID of the configured AP"
+                },
+                {
+                    "name": "encryption",
+                    "type": "string",
+                    "required": "no",
+                    "default": "sae-mixed",
+                    "description": "Encryption for the credentials. Defaults to sae-mixed for fronthauls and sae for backhauls"
+                },
+                {
+                    "name": "key",
+                    "type": "string",
+                    "required": "yes",
+                    "default": "",
+                    "description": "Password for the SSID"
+                },
+                {
+                    "name": "type",
+                    "type": "string",
+                    "required": "no",
+                    "default": "fronthaul",
+                    "description": "Interface type, may be set to fronthaul, backhaul or combined"
+                },
+                {
+                    "name": "vid",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "VLAN ID of the configured interface"
+                },
+                {
+                    "name": "disallow_bsta",
+                    "type": "list",
+                    "required": "no",
+                    "default": "0",
+                    "description": "List of profiles to disallow connection over the interface"
+                },
+                {
+                    "name": "enabled",
+                    "type": "boolean",
+                    "required": "no",
+                    "default": true,
+                    "description": "In the default use case, if option is set to false this section is not passed within an M2 to the agents. If vendor extensions are supported, the section is passed to the agents, but the agents supporting vendor extensions will start with this interface disabled."
+                },
+                {
+                    "name": "vendor_ie",
+                    "type": "list",
+                    "required": "no",
+                    "default": "",
+                    "description": "Pass any custom vendor extension as a part of the WSC M2."
+                }
+            ]
+        },
+        {
+            "section": "node",
+            "description": "Represents an ieee1905 device in the network. Contains node-specific info and policies",
+            "required": "no",
+            "multi": true,
+            "options": [{
+                    "name": "agent_id",
+                    "type": "string",
+                    "required": "yes",
+                    "default": "",
+                    "description": "AL mac of the node represented by this section"
+                },
+                {
+                    "name": "steer_exclude",
+                    "type": "list",
+                    "required": "no",
+                    "default": "",
+                    "description": "List of clients to be excluded from steering."
+                },
+                {
+                    "name": "steer_exclude_btm",
+                    "type": "list",
+                    "required": "no",
+                    "default": "",
+                    "description": "List of clients to be excluded from BTM steering."
+                },
+                {
+                    "name": "report_scan",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Whether independent channel shall be reported."
+                },
+                {
+                    "name": "report_sta_assocfails",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Whether sta association fails shall be reported."
+                },
+                {
+                    "name": "report_sta_assocfails_rate",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Maximum frequency at which sta association fails shall be reported."
+                },
+                {
+                    "name": "report_metric_periodic",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "The interval at which AP Metrics shall be reported."
+                },
+                {
+                    "name": "backhaul_ul_macaddr",
+                    "type": "string",
+                    "required": "no",
+                    "default": "",
+                    "description": "Mac address of the upstream device interface"
+                },
+                {
+                    "name": "backhaul_dl_macaddr",
+                    "type": "string",
+                    "required": "no",
+                    "default": "",
+                    "description": "Mac address of the downstream device interface"
+                },
+                {
+                    "name": "backhaul_type",
+                    "type": "string",
+                    "required": "no",
+                    "default": "",
+                    "description": "wifi or eth"
+                },
+                {
+                    "name": "primary_vid",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "1",
+                    "description": "Primary VID used for VLAN segregation"
+                },
+                {
+                    "name": "primary_pcp",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Default PCP used"
+                },
+                {
+                    "name": "steer_disallow",
+                    "type": "boolean",
+                    "required": "no",
+                    "default": false,
+                    "description": "Disallow steering to this node. OPTION NOT YET IMPLEMENTED"
+                },
+                {
+                    "name": "coordinated_cac",
+                    "type": "boolean",
+                    "required": "no",
+                    "default": false,
+                    "description": "Disallow coordinated CAC to this node. OPTION NOT YET IMPLEMENTED"
+                },
+                {
+                    "name": "traffic_separation",
+                    "type": "boolean",
+                    "required": "no",
+                    "default": false,
+                    "description": "Enable traffic separation on this node. OPTION NOT YET IMPLEMENTED"
+                }
+            ]
+        },
+        {
+            "section": "radio",
+            "description": "Represents a radio of a node.",
+            "multi": true,
+            "required": "no",
+            "options": [{
+                    "name": "agent_id",
+                    "type": "string",
+                    "required": "yes",
+                    "default": "",
+                    "description": "AL mac of the node which has this radio"
+                },
+                {
+                    "name": "band",
+                    "type": "string",
+                    "required": "yes",
+                    "default": "",
+                    "description": "2 or 5"
+                },
+                {
+                    "name": "macaddr",
+                    "type": "string",
+                    "required": "yes",
+                    "default": "",
+                    "description": "Mac address of the radio"
+                },
+                {
+                    "name": "steer_policy",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "0 = agent initiated steering disallowed, 1 = agent initiated RCPI steering mandated, 2 = agent initiated RCPI based steering allowed"
+                },
+                {
+                    "name": "util_threshold",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Channel utilization threshold."
+                },
+                {
+                    "name": "rcpi_threshold",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Indicate RCPI threshold used for agent-initiated steering. Defaults to 86 for 5GHz and 70 for 2.4GHz"
+                },
+                {
+                    "name": "report_rcpi_threshold",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "RCPI threshold at which the agent will start sending unsolicited metric reporting to controller. 0 means do not report. Defaults to 96 for 5GHz and 80 for 2.4GHz"
+                },
+                {
+                    "name": "report_util_threshold",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Threshold at which utilization will be reported."
+                },
+                {
+                    "name": "rcpi_hysteresis_margin",
+                    "type": "integer",
+                    "required": "no",
+                    "default": "0",
+                    "description": "Threshold at which hysteresis will be reported."
+                },
+                {
+                    "name": "include_sta_stats",
+                    "type": "boolean",
+                    "required": "no",
+                    "default": false,
+                    "description": "Whether to include STA traffic stats TLV with the AP metrics response."
+                },
+                {
+                    "name": "include_sta_metric",
+                    "type": "boolean",
+                    "required": "no",
+                    "default": false,
+                    "description": "Whether to include associated STA link metrics TLV in the AP metrics response."
+                },
+                {
+                    "name": "include_wifi6_sta_status",
+                    "type": "boolean",
+                    "required": "no",
+                    "default": false,
+                    "description": "Inclusion policy of Associated Wi-Fi 6 STA Status Report TLV in the AP metrics response."
+                }
+            ]
+        }
+    ]
+}

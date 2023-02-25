@@ -1,0 +1,9 @@
+{
+    "object": "map.controller",
+    "methods": [
+        {
+            "method": "ap_caps",
+            "rc": 0
+        }
+    ]
+}

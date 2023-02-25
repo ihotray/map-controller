@@ -1,0 +1,2 @@
+#!/bin/bash
+exec git diff --cached | scripts/checkpatch.pl --no-tree --no-signoff --ignore CONST_STRUCT,SPDX_LICENSE_TAG,LINE_CONTINUATIONS
