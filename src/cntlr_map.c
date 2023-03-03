@@ -2848,6 +2848,8 @@ static int add_scanres_element(struct controller *c,
 	struct wifi_scanres_channel_element *ch = NULL, *ctmp = NULL;
 	uint8_t *tv_data = NULL;
 	int offset = 0;
+	int i;
+	int new_neighbors = 0;
 
 	/* Reuse old or add new element to the list */
 	el = get_scanlist_element(c, tlv->radio, timestamp);
@@ -2879,22 +2881,30 @@ static int add_scanres_element(struct controller *c,
 	list_for_each_entry(ctmp, &op->channel_scanlist, list) {
 		if (ctmp->channel == tlv->channel) {
 			dbg("%s: channel %d already on the list\n", __func__, tlv->channel);
-			goto error; /* error condition */
+			ch = ctmp;
+			break;
 		}
 	}
 
-	ch = calloc(1, sizeof(*ch));
-	if (!ch)
-		goto error; /* error condition */
+	if (!ch) {
+		ch = calloc(1, sizeof(*ch));
+		if (!ch)
+			goto error; /* error condition */
 
-	/* add channel element to the list */
-	list_add(&ch->list, &op->channel_scanlist);
-	op->num_channels_scanned++;
+		/* add channel element to the list */
+		list_add(&ch->list, &op->channel_scanlist);
+		op->num_channels_scanned++;
 
-	/* channel */
-	ch->channel = tlv->channel;
+		/* channel */
+		ch->channel = tlv->channel;
+
+		/* Initialize nbrlist for this channel of current measurement */
+		ch->num_neighbors = 0;
+		INIT_LIST_HEAD(&ch->nbrlist);
+	}
 
 	/* tsp */
+	// TODO: compare tsp before squashing neighbors
 	memset(ch->tsp, 0, sizeof(ch->tsp)); /* null term */
 	memcpy(ch->tsp, tlv->detail[0].tsp.timestamp,
 		sizeof(ch->tsp) - 1 < tlv->detail[0].tsp.len ?
@@ -2908,57 +2918,54 @@ static int add_scanres_element(struct controller *c,
 	offset++; /* uint8_t utilization; */
 	ch->anpi = tv_data[offset];
 	offset++; /* uint8_t noise; */
-	ch->num_neighbors = BUF_GET_BE16(tv_data[offset]);
+	new_neighbors = BUF_GET_BE16(tv_data[offset]);
+	ch->num_neighbors += new_neighbors;
 	offset += 2; /* uint16_t num_neighbor; */
 
 	dbg("%s: channel %d, tsp: %s, util: %d, noise: %d, num_nbr: %d\n",
 	    __func__, ch->channel, ch->tsp, ch->utilization, ch->anpi, ch->num_neighbors);
 
-	INIT_LIST_HEAD(&ch->nbrlist);
-
-	/* Initialize nbrlist for this channel of current measurement */
-	if (ch->num_neighbors) {
-		int i;
+	/* Update nbrlist for this channel of current measurement */
+	for (i = 0; i < new_neighbors; i++) {
 		struct wifi_scanres_neighbor_element *nbr = NULL;
+		uint8_t len = 0, ssidlen;
+		uint8_t info = 0x00;
+		uint8_t bw_len;
 
-		for (i = 0; i < ch->num_neighbors; i++) {
-			uint8_t len = 0, ssidlen;
-			uint8_t info = 0x00;
-			uint8_t bw_len;
+		nbr = calloc(1, sizeof(*nbr));
+		if (!nbr)
+			goto error; /* error condition */
 
-			nbr = calloc(1, sizeof(*nbr));
-			if (!nbr)
-				goto error; /* error condition */
+		/* add nbr element to the list */
+		list_add(&nbr->list, &ch->nbrlist);
 
-			/* add nbr element to the list */
-			list_add(&nbr->list, &ch->nbrlist);
+		memcpy(nbr->bssid, &tv_data[offset], 6);
+		offset += 6;
+		ssidlen = tv_data[offset++];
+		len = (ssidlen + 1 > sizeof(nbr->ssid)
+				? sizeof(nbr->ssid) : ssidlen + 1);
+		snprintf(nbr->ssid, len, "%s", (char *)&tv_data[offset]);
+		offset += ssidlen;
+		nbr->rssi = rcpi_to_rssi(tv_data[offset]);
+		offset++;
+		bw_len = tv_data[offset++];
+		nbr->bw = atoi((char *)&tv_data[offset]);
+		offset += bw_len;
+		info = tv_data[offset];
+		offset++;
 
-			memcpy(nbr->bssid, &tv_data[offset], 6);
-			offset += 6;
-			ssidlen = tv_data[offset++];
-			len = (ssidlen + 1 > sizeof(nbr->ssid)
-					? sizeof(nbr->ssid) : ssidlen + 1);
-			snprintf(nbr->ssid, len, "%s", (char *)&tv_data[offset]);
-			offset += ssidlen;
-			nbr->rssi = rcpi_to_rssi(tv_data[offset]);
+		if (info & CH_SCAN_RESULT_BSSLOAD_PRESENT) {
+			nbr->utilization = tv_data[offset];
 			offset++;
-			bw_len = tv_data[offset++];
-			nbr->bw = atoi((char *)&tv_data[offset]);
-			offset += bw_len;
-			info = tv_data[offset];
-			offset++;
-
-			if (info & CH_SCAN_RESULT_BSSLOAD_PRESENT) {
-				nbr->utilization = tv_data[offset];
-				offset++;
-				nbr->num_stations = BUF_GET_BE16(tv_data[offset]);
-				offset += 2;
-			}
+			nbr->num_stations = BUF_GET_BE16(tv_data[offset]);
+			offset += 2;
 		}
 	}
+
 	return 0;
 
 error:
+	warn("%s: hit error condition\n", __func__);
 	cntlr_radio_clean_scanlist_el(el);
 	return -1;
 }

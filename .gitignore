@@ -11,3 +11,4 @@ src/tags
 src/mapcontroller
 .configured_*
 .pkgdir
+._*
